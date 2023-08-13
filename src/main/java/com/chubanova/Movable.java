@@ -1,7 +1,9 @@
 package com.chubanova;
 
 
-public interface Movable {
+import com.chubanova.adapter.Adapter;
+
+public interface Movable extends Adapter {
 
     Vector getPosition();
     Vector getVelocity();

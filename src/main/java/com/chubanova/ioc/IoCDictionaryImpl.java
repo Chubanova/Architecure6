@@ -5,25 +5,30 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class IoCDictionaryImpl<T> implements IoCDictionary<T>{
-    private ThreadLocal<Map<String, Function<Object[],T>>> map = new ThreadLocal<>();
+    private ThreadLocal<Map<String, Function<Object[], T>>> map = new ThreadLocal<>();
 
-    public IoCDictionaryImpl(){
+    public IoCDictionaryImpl() {
         map.set(new HashMap<>());
     }
+
+    @Override
+    public void run() {
+    }
+
     @Override
     public void add(String commandName, Function<Object[], T> returnObject) {
-        Map<String, Function<Object[],T>> localMap = map.get();
+        Map<String, Function<Object[], T>> localMap = map.get();
         localMap.put(commandName, returnObject);
         map.set(localMap);
     }
 
     @Override
     public T get(String commandName, Object[] args) {
-        return map.get().get(commandName).apply(args);
-    }
-
-    @Override
-    public void run() {
-
+        var command = map.get().get(commandName);
+        if (command == null) {
+            return null;
+        } else {
+            return map.get().get(commandName).apply(args);
+        }
     }
 }
