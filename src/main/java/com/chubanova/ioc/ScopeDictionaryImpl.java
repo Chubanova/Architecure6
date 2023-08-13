@@ -4,19 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ScopeDictionaryImpl implements ScopeDictionary<IoCDictionary>{
+
     private static final String SCOPE_NOT_EXIST = "Область видимости не существует";
     private static ScopeDictionaryImpl scopesDictionary;
     private final Map<String, IoCDictionary> mapHandler;
     private final Map<String, Thread> mapThead;
     private static IoCDictionary currentScope;
 
-    private ScopeDictionaryImpl(){
+    private ScopeDictionaryImpl() {
         mapHandler = new HashMap<>();
         mapThead = new HashMap<>();
         currentScope = null;
     }
 
-    public static ScopeDictionaryImpl getInstance(){
+    public static ScopeDictionaryImpl getInstance() {
         if (scopesDictionary == null) {
             scopesDictionary = new ScopeDictionaryImpl();
         }
@@ -39,21 +40,30 @@ public class ScopeDictionaryImpl implements ScopeDictionary<IoCDictionary>{
         mapThead.put(scopeName, thread);
 
         initializeCommandHandlerInScope(ioCDictionary);
+        initializeAdapterInScope(ioCDictionary);
 
         currentScope = ioCDictionary;
     }
 
     @Override
     public void changeScope(String toScopeName) {
-        if (!mapHandler.containsKey(toScopeName)){
+        if (!mapHandler.containsKey(toScopeName)) {
             new RuntimeException(SCOPE_NOT_EXIST);
         }
 
         currentScope = mapHandler.get(toScopeName);
     }
 
-    private void initializeCommandHandlerInScope(IoCDictionary ioCDictionary){
+    private void initializeCommandHandlerInScope(IoCDictionary ioCDictionary) {
         Initializer initializerCommandHandler = new InitializerCommandHandler();
         initializerCommandHandler.initialize(ioCDictionary);
+    }
+
+    private void initializeAdapterInScope(IoCDictionary ioCDictionary) {
+        Initializer initializerAdapters = new InitializerAdapters();
+        initializerAdapters.initialize(ioCDictionary);
+
+        Initializer initializerAdaptersProperties = new InitializerAdaptersProperties();
+        initializerAdaptersProperties.initialize(ioCDictionary);
     }
 }
